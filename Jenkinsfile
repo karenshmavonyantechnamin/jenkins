@@ -18,9 +18,9 @@ pipeline {
             steps {
                 script {                    
                     sh 'docker login -u $DOCKER_HOST_CREDENTIALS_USR -p $DOCKER_HOST_CREDENTIALS_PSW 127.0.0.1:2375'
-                    def dockerImage = docker.build("antonml/node-demo:master")
+                    def dockerImage = docker.build("karenshmavonyan19971610/mydockerhub:tagname")
                     docker.withRegistry('', 'demo-docker') {
-                        dockerImage.push('karenshmavonyan19971610/mydockerhub:tagname')
+                        dockerImage.push('master')
                     }
                 }
             }
