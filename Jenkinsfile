@@ -1,43 +1,23 @@
 pipeline {
-    agent any
+
+    agent {
+        docker {
+            image 'node'
+            args '-u root'
+        }
+    }
+
     stages {
-        stage('Tests') {
+        stage('Build') {
             steps {
-//                 script {
-//                    docker.image('node:10-stretch').inside { c ->
-                        echo 'Building..'
-                        sh 'npm install'
-                        echo 'Testing..'
-                        sh 'npm test'
-//                         sh "docker logs ${c.id}"
-//                    }
-//                 }
+                echo 'Building...'
+                sh 'npm install'
             }
         }
-        stage('Build and push docker image') {
+        stage('Test') {
             steps {
-                script {                    
-                    def dockerImage = docker.build("rundeck/node-demo:master")
-                    docker.withRegistry('', 'demo-docker') {
-                        dockerImage.push('master')
-                    }
-                }
-            }
-        }
-        stage('Deploy to remote docker host') {
-            environment {
-                DOCKER_HOST_CREDENTIALS = credentials('demo-docker')
-            }
-            steps {
-                script {                  
-                    sh 'docker login -u $DOCKER_HOST_CREDENTIALS_USR -p $DOCKER_HOST_CREDENTIALS_PSW 127.0.0.1:2375'
-                    sh 'docker pull rundeck/node-demo:latest'
-                    sh 'docker stop node-demo'
-                    sh 'docker rm node-demo'
-                    sh 'docker rmi rundeck/node-demo:current'
-                    sh 'docker tag rundeck/node-demo:master rundeck/node-demo:current'
-                    sh 'docker run -d --name node-demo -p 80:3000 rundeck/node-demo:current'
-                }
+                echo 'Testing...'
+                sh 'npm test'
             }
         }
     }
